@@ -36,6 +36,9 @@
         </div>
     </div>
 
+    <!-- SimPF: menu customization -->
+    <div class="simpf-menu-tab" ng-mouseover="openMenu()" ng-touch="openMenu()"></div>
+
     <!-- File transfers -->
     <div id="file-transfer-dialog" ng-show="hasTransfers()">
         <guac-file-transfer-manager client="client"></guac-file-transfer-manager>
@@ -47,7 +50,8 @@
     </div>
 
     <!-- Menu -->
-    <div class="menu" ng-class="{open: menu.shown}" id="guac-menu">
+    <div class="menu" ng-class="{open: menu.shown}" ng-mouseleave="closeMenu()" id="guac-menu">
+
         <div class="menu-content" ng-if="menu.shown">
 
             <!-- Stationary header -->
@@ -97,6 +101,14 @@
                                 <td><a href="{{link.value.href}}" target="_blank">{{link.value.href}}</a></td>
                             </tr>
                         </table>
+                    </div>
+                </div>
+
+                <!-- SimPF: Full screen -->
+                <div class="menu-section" id="fullscreen-settings" ng-show="fullScreenSupported()">
+                    <h3>Full Screen</h3>
+                    <div class="content">
+                        <div><label><input ng-model="menu.fullScreen" type="checkbox" id="full-screen"/> Show desktop in full screen mode</label></div>
                     </div>
                 </div>
 

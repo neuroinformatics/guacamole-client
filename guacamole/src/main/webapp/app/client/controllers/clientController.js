@@ -232,6 +232,13 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
         shown : false,
 
         /**
+         * SimPF: Whether the browser full screen mode enabled.
+         *
+         * @type Boolean
+         */
+        fullScreen : false,
+
+        /**
          * Whether the Guacamole display should be scaled to fit the browser
          * window.
          *
@@ -1065,6 +1072,45 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
 
         }
 
+    });
+
+    /**
+     * SimPF: menu customization and fullscreen support
+     */
+    var $document = $injector.get('$document');
+
+    $scope.openMenu = function openMenu() {
+        $scope.menu.shown = true;
+    };
+
+    $scope.$watch('menu.fullScreen', function menuFullscreenChanged(menuFullscreen, menuFullscreenPreviousState) {
+        var doc = $document[0];
+        var el = doc.documentElement;
+        var requestFullscreen = el.requestFullscreen || el.mozRequestFullScreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        var cancelFullscreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+        if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+            if (menuFullscreen) {
+                requestFullscreen.call(el);
+            }
+        } else {
+            if (!menuFullscreen) {
+                cancelFullscreen.call(doc);
+            }
+        }
+    });
+
+    $scope.fullScreenSupported = function() {
+        var doc = $document[0];
+        var el = doc.documentElement;
+        var requestFullscreen = el.requestFullscreen || el.mozRequestFullScreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        var cancelFullscreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+        return ((requestFullscreen || cancelFullscreen) ? true : false);
+    };
+
+    $document.on('fullscreenchange mozfullscreenchange webkitfullscreenchange MSFullscreenChange', function () {
+        var doc = $document[0];
+        $scope.menu.fullScreen = (doc.fullscreenElement || doc.mozFullScreenElement || doc.webkitFullscreenElement || doc.msFullscreenElement) ? true : false;
+        $scope.menu.shown = false;
     });
 
 }]);
