@@ -60,6 +60,11 @@ mkdir -p "$DESTINATION"
 
 cd "$BUILD_DIR"
 
+# Required for build leveraging PhantomJS for unit testing (without this, the
+# build fails with "libssl_conf.so: cannot open shared object file: No such
+# file or directory")
+export OPENSSL_CONF=/etc/ssl
+
 if [ -z "$BUILD_PROFILE" ]; then
     mvn package
 else
@@ -106,6 +111,17 @@ echo "Downloading PostgreSQL JDBC driver ..."
 curl -L "https://jdbc.postgresql.org/download/postgresql-9.4-1201.jdbc41.jar" > "$DESTINATION/postgresql/postgresql-9.4-1201.jdbc41.jar"
 
 #
+# Copy SSO auth extensions
+#
+
+tar -xzf extensions/guacamole-auth-sso/modules/guacamole-auth-sso-dist/target/*.tar.gz \
+    -C "$DESTINATION"                                   \
+    --wildcards                                         \
+    --no-anchored                                       \
+    --strip-components=1                                \
+    "*.jar"
+
+#
 # Copy LDAP auth extension and schema modifications
 #
 
@@ -125,15 +141,6 @@ tar -xzf extensions/guacamole-auth-ldap/target/*.tar.gz \
 if [ -f extensions/guacamole-auth-radius/target/guacamole-auth-radius*.jar ]; then
     mkdir -p "$DESTINATION/radius"
     cp extensions/guacamole-auth-radius/target/guacamole-auth-radius*.jar "$DESTINATION/radius"
-fi
-
-#
-# Copy OPENID auth extension and schema modifications
-#
-
-if [ -f extensions/guacamole-auth-openid/target/guacamole-auth-openid*.jar ]; then
-    mkdir -p "$DESTINATION/openid"
-    cp extensions/guacamole-auth-openid/target/guacamole-auth-openid*.jar "$DESTINATION/openid"
 fi
 
 #
@@ -170,17 +177,10 @@ if [ -f extensions/guacamole-auth-header/target/guacamole-auth-header*.jar ]; th
 fi
 
 #
-# Copy CAS auth extension if it was built
+# Copy json auth extension if it was built
 #
 
-if [ -f extensions/guacamole-auth-cas/target/*.tar.gz ]; then
-    mkdir -p "$DESTINATION/cas"
-    tar -xzf extensions/guacamole-auth-cas/target/*.tar.gz  \
-    -C "$DESTINATION/cas/"                                  \
-    --wildcards                                             \
-    --no-anchored                                           \
-    --no-wildcards-match-slash                              \
-    --strip-components=1                                    \
-    "*.jar"
+if [ -f extensions/guacamole-auth-json/target/guacamole-auth-json*.jar ]; then
+    mkdir -p "$DESTINATION/json"
+    cp extensions/guacamole-auth-json/target/guacamole-auth-json*.jar "$DESTINATION/json"
 fi
-
